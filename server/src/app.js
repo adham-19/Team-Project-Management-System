@@ -3,6 +3,9 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 
+// ROUTE IMPORTS
+import projectRouter from "./routes/project.route.js";
+
 const app = express();
 
 // middlewares
@@ -10,9 +13,7 @@ app.use(express.json());
 app.use(cors());
 
 // routes
-app.get("/test", (req, res) => {
-  res.send("test work successfully");
-});
+app.use("/api/projects", projectRouter);
 
 // error handlers
 app.use((req, res, next) => {
