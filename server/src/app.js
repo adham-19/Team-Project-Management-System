@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 
 // ROUTE IMPORTS
 import projectRouter from "./routes/project.route.js";
+import taskRouter from "./routes/task.route.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cors());
 
 // routes
 app.use("/api/projects", projectRouter);
+app.use("/api/tasks", taskRouter);
 
 // error handlers
 app.use((req, res, next) => {
