@@ -1,84 +1,90 @@
 import projectModel from "../models/project.model.js";
+import catchAsync from "../utils/catchAsync.util.js";
 
-export const createProject = async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    // owner will be after that took from token after authentication
-    const project = await projectModel.create({
-      name,
-      description,
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Project created successfully",
-      data: project,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+export const createProject = catchAsync(async (req, res) => {
+  const { name, description } = req.body;
+  if (!name || !description) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Name and Description are requried" });
   }
-};
 
-export const getAllProjects = async (req, res) => {
-  try {
-    const projects = await projectModel.find();
+  // owner will be after that took from token after authentication
 
-    res.status(200).json({
-      success: true,
-      message: "Projects retrieved successfully",
-      data: projects,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+  const project = await projectModel.create({
+    name,
+    description,
+  });
+
+  res.status(201).json({
+    success: true,
+    message: "Project created successfully",
+    data: project,
+  });
+});
+
+export const getAllProjects = catchAsync(async (req, res) => {
+  const projects = await projectModel.find();
+
+  res.status(200).json({
+    success: true,
+    message: "Projects retrieved successfully",
+    data: projects,
+  });
+});
+
+export const getProjectById = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const project = await projectModel.findById(id);
+  if (!project) {
+    return res
+      .status(404)
+      .json({ success: false, message: "No project found with this id" });
   }
-};
 
-export const getProjectById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const project = await projectModel.findById(id);
+  res.status(200).json({
+    success: true,
+    message: "Project details retrieved successfully",
+    data: project,
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      message: "Project details retrieved successfully",
-      data: project,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+export const updateProject = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+
+  const updatedProject = await projectModel.findByIdAndUpdate(
+    id,
+    { name, description },
+    { returnDocument: "after", runValidators: true },
+  );
+  if (!updatedProject) {
+    return res
+      .status(404)
+      .json({ success: false, message: "No project found with this id" });
   }
-};
 
-export const updateProject = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, description } = req.body;
-    const updatedProject = await projectModel.findByIdAndUpdate(
-      id,
-      { name, description },
-      { returnDocument: 'after', runValidators: true },
-    );
+  res.status(200).json({
+    success: true,
+    message: "Project updated successfully",
+    data: updatedProject,
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      message: "Project updated successfully",
-      data: updatedProject,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+export const deleteProject = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const project = await projectModel.findByIdAndDelete(id);
+  if (!project) {
+    return res
+      .status(404)
+      .json({ success: false, message: "No project found with this id" });
   }
-};
 
-export const deleteProject = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const project = await projectModel.findByIdAndDelete(id);
-
-    res.status(200).json({
-      success: true,
-      message: "Project deleted successfully",
-      data: project,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
+  res.status(200).json({
+    success: true,
+    message: "Project deleted successfully",
+    data: project,
+  });
+});

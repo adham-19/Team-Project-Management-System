@@ -22,8 +22,14 @@ app.use((req, res, next) => {
   res.status(404).json({ success: false, message: "Page Not Found" });
 });
 app.use((err, req, res, next) => {
-  res.status(500).json({ success: false, message: "Internal Server Error" });
-});
+  if (err.name === "CastError") {
+    res.status(400).json({ success: false, message: "Id is invalid" });
+  } else if (err.name === "ValidationError") {
+    res.status(400).json({ success: false, message: err.message });
+  } else {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+})
 
 // MongoDB Connect
 mongoose
