@@ -2,17 +2,35 @@
 
 @theme {
   /* ألوان فريق السباقات المخصصة */
-  --color-primary: #FF0000;
-  --color-primary-dark: #CC0000;
-  --color-main-bg: #F8F9FA;
-  --color-surface: #FFFFFF;
+  --color-primary: #ff0000;
+  --color-primary-dark: #cc0000;
+  --color-main-bg: #f8f9fa;
+  --color-surface: #ffffff;
   --color-text-main: #111827;
-  --color-text-secondary: #6B7280;
-  --color-border-light: #E5E7EB;
+  --color-text-secondary: #6b7280;
+  --color-border-light: #e5e7eb;
   --color-dark-navy: #111827;
-  
+
   /* ألوان الحالات (Status Colors) */
-  --color-success: #16A34A;
-  --color-warning: #F59E0B;
-  --color-error: #DC2626;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+}
+
+tr {
+  @apply border-b border-border-light last:border-0 hover:bg-main-bg/50 transition-colors;
+}
+td {
+  @apply px-5 py-4;
+}
+th {
+  @apply px-5 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider;
+}
+
+thead {
+  @apply bg-main-bg border-b border-border-light;
+}
+
+table {
+  @apply w-full text-sm;
 }

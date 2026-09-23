@@ -6,6 +6,14 @@ import { Search, ArrowUpRight } from "lucide-react";
 import { createProject, getAllProjects } from "../services/project.service";
 import { Link } from "react-router-dom";
 
+// COMPONENT IMPORTS
+import Error from "../components/Error";
+import Loading from "../components/Loading";
+import Modal from "../components/Modal";
+
+// UTILS
+import { projectFields } from "../utils/fieldsFormat";
+
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,41 +45,12 @@ export default function Projects() {
     fetchData();
   }, []);
 
+  // LOADING & ERROR
   if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen bg-main-bg text-text-secondary">
-        <div className="w-10 h-10 border-4 border-border-light border-t-primary rounded-full animate-spin mb-4"></div>
-        <div className="flex items-center gap-1 text-sm font-medium tracking-wide animate-pulse">
-          <span>Loading Projects</span>
-          <span className="flex gap-0.5">
-            <span>.</span>
-            <span>.</span>
-            <span>.</span>
-          </span>
-        </div>
-      </div>
-    );
+    return <Loading message="Loading Projects" />;
   }
   if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-main-bg p-4">
-        <div className="bg-surface border border-border-light p-6 rounded-xl shadow-sm max-w-md w-full text-center">
-          <div className="w-12 h-12 bg-red-50 text-error rounded-full flex justify-center items-center mx-auto mb-4 text-xl font-bold">
-            !
-          </div>
-          <h3 className="text-text-main font-semibold text-lg mb-1">
-            Request Failed
-          </h3>
-          <p className="text-error text-sm font-medium">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-main-bg hover:bg-border-light text-text-main text-xs font-semibold rounded-lg transition-colors border border-border-light"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    return <Error message={error} />;
   }
 
   // EVENT HANDLERS
@@ -149,11 +128,11 @@ export default function Projects() {
 
           {projects.length === 0 ? (
             <div className="text-center py-8 text-text-secondary bg-surface rounded-xl border border-border-light text-sm">
-              No projects created yet. Click 'New Project' to get started.{" "}
+              No projects created yet. Click 'New Project' to get started.
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="text-center py-8 text-text-secondary bg-surface rounded-xl border border-border-light text-sm">
-              No projects match your search criteria.{" "}
+              No projects match your search criteria.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -206,79 +185,20 @@ export default function Projects() {
       </div>
       {/*=== Projects ===*/}
 
-      {/* Create Project Modal */}
+      {/* Create New Project Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
-          <div
-            className="absolute inset-0"
-            onClick={() => setIsModalOpen(false)}
-          ></div>
-
-          <div className="bg-surface border border-border-light w-full max-w-md rounded-2xl p-6 shadow-xl relative z-10 scale-95 animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl text-text-main font-bold mb-1">
-              Create New Project
-            </h3>
-            <p className="text-text-secondary text-xs mb-3">
-              Enter details to build a new workspace for your team.
-            </p>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name */}
-              <div>
-                <label className="block text-xs font-semibold text-text-main mb-1.5">
-                  Project Name <span className="text-primary">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Aerodynamics Simulation"
-                  className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                />
-              </div>
-              {/*=== Name ===*/}
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-semibold text-text-main mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  rows="4"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Describe the goals, links, or notes for this project..."
-                  className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                ></textarea>
-              </div>
-              {/*=== Description ===*/}
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border-light mt-6">
-                <button
-                  onClick={() => {
-                    setIsModalOpen(false);
-                  }}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-text-secondary hover:bg-main-bg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  {isSubmitting ? "Creating..." : "Create Project"}
-                </button>
-              </div>
-              {/*=== Action Buttons ===*/}
-            </form>
-          </div>
-        </div>
+        <Modal
+          title="Create New Project"
+          description="Enter details to build a new workspace for your team."
+          fields={projectFields}
+          setIsModalOpen={setIsModalOpen}
+          handleSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          handleInputChange={handleInputChange}
+          formData={formData}
+        />
       )}
-      {/*=== Create Project Modal ===*/}
+      {/*=== Create New Project Modal ===*/}
     </div>
   );
 }
