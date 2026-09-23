@@ -102,25 +102,28 @@ export default function ProjectDetails() {
   const getPriorityStyle = (priority) => {
     switch (priority) {
       case "High":
-        return "text-error bg-red-50";
+        return "bg-red-50 text-error border border-red-100";
       case "Medium":
-        return "text-warning bg-amber-50";
+        return "bg-orange-50 text-orange-600 border border-orange-100";
       case "Low":
-        return "text-text-secondary bg-main-bg";
+        return "bg-green-50 text-success border border-green-100";
+      default:
+        return "bg-main-bg text-text-secondary border border-border-light";
     }
   };
-
   const getStatusStyle = (status) => {
     switch (status) {
-      case "To Do":
-        return "text-text-secondary bg-main-bg";
-      case "In Progress":
-        return "text-warning bg-amber-50";
       case "Done":
-        return "text-success bg-green-50";
+        return "bg-green-50 text-success border border-green-100";
+      case "In Progress":
+        return "bg-blue-50 text-blue-600 border border-blue-100";
+      case "To Do":
+        return "bg-orange-50 text-orange-600 border border-orange-100";
+      default:
+        return "bg-main-bg text-text-secondary border border-border-light";
     }
   };
-
+  
   // EVENT HANDLERS
   // Project
   const handleOpenEditProject = () => {
@@ -384,7 +387,6 @@ export default function ProjectDetails() {
                   <td>
                     <button
                       type="button"
-
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-red-600 bg-red-50/60 border border-red-100 rounded-md hover:bg-red-50 hover:text-red-700 transition-all cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -589,5 +591,6 @@ export default function ProjectDetails() {
         {/*=== Delete Task ===*/}
         {/*=== Confirmation Modal ===*/}
       </div>
-    </div>  );
+    </div>
+  );
 }

@@ -95,6 +95,7 @@ export default function Navbar() {
           <NavLink
             to="/"
             end
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               `w-full px-4 py-2.5 rounded-lg text-base font-medium transition-all block ${
                 isActive
@@ -108,6 +109,7 @@ export default function Navbar() {
 
           <NavLink
             to="/projects"
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               `w-full px-4 py-2.5 rounded-lg text-base font-medium transition-all block ${
                 isActive
@@ -121,6 +123,7 @@ export default function Navbar() {
 
           <NavLink
             to="/tasks"
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               `w-full px-4 py-2.5 rounded-lg text-base font-medium transition-all block ${
                 isActive
@@ -136,8 +139,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between w-full pt-2">
           <NavLink
             to="/Profile"
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) => `
-              w-10 h-10 rounded-full border-2 border flex items-center justify-center transition-colors
+              w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors
               ${isActive ? "border-primary text-primary bg-surface" : "border-border-light text-text-secondary bg-dark-navy"}`}
           >
             <User className="w-5 h-5" />

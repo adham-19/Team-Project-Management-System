@@ -1,6 +1,6 @@
 // REACT IMPORTS
 import { useEffect, useMemo, useState } from "react";
-import { Search, ArrowUpRight } from "lucide-react";
+import { Search, ArrowUpRight, Plus } from "lucide-react";
 
 // SERVICE IMPORTS
 import { createProject, getAllProjects } from "../services/project.service";
@@ -103,15 +103,15 @@ export default function Projects() {
             />
           </div>
           {/*=== SearchBar ===*/}
-
           {/* Create Project Button */}
           <button
             onClick={() => {
               setIsModalOpen(true);
             }}
-            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors cursor-pointer"
           >
-            New Project +
+            <Plus className="w-4 h-4" />
+            New Project
           </button>
           {/*=== Create Project Button ===*/}
         </div>
@@ -140,14 +140,14 @@ export default function Projects() {
                 <Link
                   key={p._id}
                   to={`/projects/${p._id}`}
-                  className="group bg-surface border border-border-light rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-h-[180px] cursor-pointer"
+                  className="group bg-surface border border-border-light rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-h-45 cursor-pointer"
                 >
                   <div>
                     <div className="flex justify-between items-start gap-2">
                       <h3 className="text-md font-bold text-text-main truncate group-hover:text-primary transition-colors">
                         {p.name}
                       </h3>
-                      <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all flex-shrink-0" />
+                      <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
                     </div>
                     <p className="text-text-secondary text-xs mt-2 line-clamp-2 leading-relaxed">
                       {p.description ||
