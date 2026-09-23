@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  /* ألوان فريق السباقات المخصصة */
+  --color-primary: #FF0000;
+  --color-primary-dark: #CC0000;
+  --color-main-bg: #F8F9FA;
+  --color-surface: #FFFFFF;
+  --color-text-main: #111827;
+  --color-text-secondary: #6B7280;
+  --color-border-light: #E5E7EB;
+  --color-dark-navy: #111827;
+  
+  /* ألوان الحالات (Status Colors) */
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-error: #DC2626;
+}
