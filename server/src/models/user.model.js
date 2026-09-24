@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      requried: true,
+      required: true,
       select: false,
       minlength: [8, "password is very small"],
       maxlength: [100, "password is very big"],
@@ -48,5 +48,19 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) {
+    return;
+  }
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    this.password = hashedPassword;
+  } catch (error) {
+    throw error;
+  }
+});
 
 export default mongoose.model("user", userSchema);

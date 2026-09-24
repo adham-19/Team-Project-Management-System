@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 // ROUTE IMPORTS
 import projectRouter from "./routes/project.route.js";
 import taskRouter from "./routes/task.route.js";
+import userRouter from "./routes/user.route.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(cors());
 // routes
 app.use("/api/projects", projectRouter);
 app.use("/api/tasks", taskRouter);
+app.use("/api/users", userRouter);
 
 // error handlers
 app.use((req, res, next) => {
@@ -23,13 +25,16 @@ app.use((req, res, next) => {
 });
 app.use((err, req, res, next) => {
   if (err.name === "CastError") {
-    res.status(400).json({ success: false, message: "Id is invalid" });
+    res.status(400).json({ success: false, message: "ID is invalid" });
   } else if (err.name === "ValidationError") {
     res.status(400).json({ success: false, message: err.message });
+  } else if (err.code === 11000) {
+    const duplicateField = Object.keys(err.keyValue)[0];
+    res.status(409).json({ success: false, message: `This ${duplicateField} is already exist`});
   } else {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-})
+});
 
 // MongoDB Connect
 mongoose
