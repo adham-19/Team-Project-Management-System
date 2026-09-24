@@ -53,14 +53,9 @@ userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
     return;
   }
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(this.password, salt);
-    this.password = hashedPassword;
-  } catch (error) {
-    throw error;
-  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(this.password, salt);
+  this.password = hashedPassword;
 });
 
 export default mongoose.model("user", userSchema);
