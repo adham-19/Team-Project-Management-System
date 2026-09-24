@@ -52,13 +52,38 @@ export const createTask = catchAsync(async (req, res) => {
     data: task,
   });
 });
-
 export const getAllTasks = catchAsync(async (req, res) => {
-  const userProjects = await projectModel
-    .find({ members: req.user.userId })
-    .select("_id");
-  const projectIds = userProjects.map((project) => project._id);
-  const tasks = await taskModel.find({ projectId: { $in: projectIds } });
+  const { projectId } = req.query;
+
+  let tasks;
+
+  if (projectId) {
+    const project = await projectModel.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project Not Found",
+      });
+    }
+
+    const isMember = project.members.some(
+      (member) => member.toString() === req.user.userId,
+    );
+
+    if (!isMember) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    tasks = await taskModel.find({ projectId });
+  } else {
+    tasks = await taskModel.find({
+      assignedTo: req.user.userId,
+    });
+  }
 
   res.status(200).json({
     success: true,

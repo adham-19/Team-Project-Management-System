@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ClipboardList, FolderKanban, Users } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 import { getAllTasks } from "../services/task.service";
 import { getAllProjects } from "../services/project.service";
@@ -18,6 +19,7 @@ export default function Dashboard() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState("");
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -44,15 +46,18 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  // PROJECT LOOKUP
-  const projectsMap = useMemo(() => {
-    return projects.reduce((acc, project) => {
-      acc[project._id] = project;
-      return acc;
-    }, {});
-  }, [projects]);
+  const myProjects = useMemo(() => {
+    return projects.filter(
+      (project) => String(project.owner) === String(user?._id),
+    );
+  }, [projects, user]);
 
-  // TOP PRIORITY PENDING TASK
+  const joinedProjects = useMemo(() => {
+    return projects.filter(
+      (project) => String(project.owner) !== String(user?._id),
+    );
+  }, [projects, user]);
+
   const priorityTask = useMemo(() => {
     const priorityOrder = {
       High: 3,
@@ -65,24 +70,15 @@ export default function Dashboard() {
       .sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])[0];
   }, [tasks]);
 
-  // TOP 3 TASKS
   const latestTasks = useMemo(() => {
     return tasks.slice(0, 3);
   }, [tasks]);
 
-  // TOP 3 PROJECTS BY MEMBERS
   const topProjects = useMemo(() => {
-    return [...projects]
+    return [...myProjects]
       .sort((a, b) => (b.members?.length || 0) - (a.members?.length || 0))
       .slice(0, 3);
-  }, [projects]);
-
-  // LEVEL 1 FALLBACK:
-  // Real "joined projects" count will be based on
-  // the current authenticated user in Level 2.
-  const joinedProjectsCount = useMemo(() => {
-    return projects.filter((project) => project.members?.length > 0).length;
-  }, [projects]);
+  }, [myProjects]);
 
   if (isLoading) {
     return <Loading />;
@@ -112,17 +108,15 @@ export default function Dashboard() {
             icon={ClipboardList}
             description="Tasks assigned to you"
           />
-
           <DashboardCard
             title="My Projects"
-            value={projects.length}
+            value={myProjects.length}
             icon={FolderKanban}
             description="Projects you created"
           />
-
           <DashboardCard
             title="Joined Projects"
-            value={joinedProjectsCount}
+            value={joinedProjects.length}
             icon={Users}
             description="Projects you're a member of"
           />
@@ -133,14 +127,14 @@ export default function Dashboard() {
           <DashboardHighlight
             task={priorityTask}
             projectName={
-              priorityTask ? projectsMap[priorityTask.projectId]?.name : ""
+              priorityTask ? projects[priorityTask.projectId]?.name : ""
             }
           />
         </div>
 
         {/* TASKS + PROJECTS */}
         <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <DashboardTasks tasks={latestTasks} projectsMap={projectsMap} />
+          <DashboardTasks tasks={latestTasks} projectsMap={projects} />
 
           <DashboardProjects projects={topProjects} />
         </div>

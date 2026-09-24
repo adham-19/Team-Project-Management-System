@@ -16,14 +16,14 @@ import {
   updateProfile,
   changePassword,
   deleteAccount,
-} from "../../services/user.service";
+} from "../services/user.service";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
-import Loading from "../../components/Loading";
-import Error from "../../components/Error";
-import Modal from "../../components/Modal";
-import ConfirmationModal from "../../components/ConfirmationModal";
+import Loading from "../components/Loading";
+import Error from "../components/Error";
+import Modal from "../components/Modal";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const profileFields = [
   {

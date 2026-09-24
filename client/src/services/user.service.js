@@ -23,3 +23,7 @@ export const changePassword = async (data) => {
 export const deleteAccount = async () => {
   return api.delete("/users/profile");
 };
+
+export const getAllUsers = async () => {
+  return api.get("/users");
+};
