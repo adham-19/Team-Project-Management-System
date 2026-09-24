@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserPlus } from "lucide-react";
 
-import { register } from "../services/user.service";
+import { registerUser } from "../services/user.service";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -87,7 +87,7 @@ export default function Register() {
     setIsSubmitting(true);
 
     try {
-      await register({
+      await registerUser({
         firstName: formData.firstName.trim(),
         secondName: formData.secondName.trim(),
         username: formData.username.trim(),

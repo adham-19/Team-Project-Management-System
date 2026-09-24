@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
-import { login } from "../services/user.service";
+import { loginUser } from "../services/user.service";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -39,40 +41,39 @@ export default function Login() {
     return "";
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    setFormError("");
+  setFormError("");
 
-    const validationError = validateForm();
+  const validationError = validateForm();
 
-    if (validationError) {
-      setFormError(validationError);
-      return;
-    }
+  if (validationError) {
+    setFormError(validationError);
+    return;
+  }
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    try {
-      const res = await login({
-        email: formData.email.trim(),
-        password: formData.password,
-      });
+  try {
+    const res = await loginUser({
+      email: formData.email.trim(),
+      password: formData.password,
+    });
 
-      const { user, token } = res.data.data;
+    const { user, token } = res.data.data;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+    login(user, token);
 
-      navigate("/");
-    } catch (err) {
-      setFormError(
-        err.response?.data?.message || "Something went wrong",
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    navigate("/");
+  } catch (err) {
+    setFormError(
+      err.response?.data?.message || "Something went wrong",
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-main-bg px-4 py-8 sm:px-6">

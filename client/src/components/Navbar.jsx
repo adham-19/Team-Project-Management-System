@@ -1,10 +1,13 @@
 // REACT IMPORTS
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { User, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="bg-dark-navy border-b border-border-light">
@@ -67,7 +70,12 @@ export default function Navbar() {
           >
             <User className="w-5 h-5" />
           </NavLink>
-          <button className="flex items-center gap-2 hover:text-primary cursor-pointer">
+          <button 
+            onClick={() => {
+    logout();
+    navigate("/login");
+  }}
+          className="flex items-center gap-2 hover:text-primary cursor-pointer">
             <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>
@@ -147,7 +155,13 @@ export default function Navbar() {
             <User className="w-5 h-5" />
           </NavLink>
 
-          <button className="flex items-center gap-2 text-text-secondary hover:text-primary cursor-pointer px-3 py-2 rounded-lg hover:bg-surface/50 transition-colors text-base font-medium">
+          <button
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+            className="flex items-center gap-2 text-text-secondary hover:text-primary cursor-pointer px-3 py-2 rounded-lg hover:bg-surface/50 transition-colors text-base font-medium"
+          >
             <LogOut className="w-5 h-5" />
             Logout
           </button>
