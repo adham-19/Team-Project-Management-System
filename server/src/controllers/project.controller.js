@@ -45,15 +45,23 @@ export const getProjectById = catchAsync(async (req, res) => {
   const project = await projectModel
     .findById(id)
     .populate("members", "firstName secondName username email");
-    
+
   if (!project) {
-    return res
-      .status(404)
-      .json({ success: false, message: "No project found with this id" });
+    return res.status(404).json({
+      success: false,
+      message: "No project found with this id",
+    });
   }
 
-  if (!project.members.some((m) => m.toString() === req.user.userId)) {
-    return res.status(403).json({ success: false, message: "Forbidden" });
+  const isMember = project.members.some(
+    (member) => member._id.toString() === req.user.userId
+  );
+
+  if (!isMember) {
+    return res.status(403).json({
+      success: false,
+      message: "Forbidden",
+    });
   }
 
   res.status(200).json({
