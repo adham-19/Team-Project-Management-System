@@ -3,6 +3,11 @@ import userModel from "../models/user.model.js";
 import catchAsync from "../utils/catchAsync.util.js";
 import taskModel from "../models/task.model.js";
 
+const userMatchesMember = (member, userId) => {
+  const memberId = member?._id ? member._id.toString() : member?.toString();
+  return memberId === userId;
+};
+
 export const createProject = catchAsync(async (req, res) => {
   const { name, description } = req.body;
   if (!name || !description) {
@@ -29,7 +34,9 @@ export const getAllProjects = catchAsync(async (req, res) => {
   const projects = await projectModel.find();
 
   const filteredProjects = projects.filter((p) => {
-    return p.members.some((m) => m.toString() === req.user.userId);
+    return p.members.some((member) =>
+      userMatchesMember(member, req.user.userId),
+    );
   });
 
   res.status(200).json({
@@ -53,8 +60,8 @@ export const getProjectById = catchAsync(async (req, res) => {
     });
   }
 
-  const isMember = project.members.some(
-    (member) => member._id.toString() === req.user.userId
+  const isMember = project.members.some((member) =>
+    userMatchesMember(member, req.user.userId),
   );
 
   if (!isMember) {
