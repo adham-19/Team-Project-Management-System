@@ -11,37 +11,7 @@ import {
 
 import Modal from "../components/Modal";
 import ConfirmationModal from "../components/ConfirmationModal";
-
-const profileFields = [
-  {
-    name: "firstName",
-    label: "First Name",
-    type: "text",
-    required: true,
-    placeholder: "Enter your first name",
-  },
-  {
-    name: "secondName",
-    label: "Second Name",
-    type: "text",
-    required: true,
-    placeholder: "Enter your second name",
-  },
-  {
-    name: "username",
-    label: "Username",
-    type: "text",
-    required: true,
-    placeholder: "Enter your username",
-  },
-  {
-    name: "email",
-    label: "Email",
-    type: "text",
-    required: true,
-    placeholder: "Enter your email",
-  },
-];
+import { profileFields } from "../utils/fieldsFormat";
 
 export default function Profile() {
   // Temporary data until authentication/profile API is implemented
@@ -103,9 +73,7 @@ export default function Profile() {
       setUser(profileFormData);
       setIsEditProfile(false);
     } catch (err) {
-      setModalError(
-        err.response?.data?.message || "Something went wrong",
-      );
+      setModalError(err.response?.data?.message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -126,9 +94,7 @@ export default function Profile() {
 
       setIsDeleteAccount(false);
     } catch (err) {
-      setModalError(
-        err.response?.data?.message || "Something went wrong",
-      );
+      setModalError(err.response?.data?.message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
@@ -139,9 +105,7 @@ export default function Profile() {
       <div className="mx-auto max-w-3xl">
         {/* PAGE HEADER */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-text-main">
-            Profile
-          </h1>
+          <h1 className="text-2xl font-bold text-text-main">Profile</h1>
 
           <p className="mt-1 text-sm text-text-secondary">
             Manage your account information and preferences
@@ -160,9 +124,7 @@ export default function Profile() {
 
               {/* NAME */}
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-text-main">
-                  {fullName}
-                </h2>
+                <h2 className="text-xl font-bold text-text-main">{fullName}</h2>
 
                 <p className="mt-1 text-sm text-text-secondary">
                   @{user.username}
@@ -305,8 +267,8 @@ export default function Profile() {
                 </h3>
 
                 <p className="mt-1 max-w-xl text-xs leading-relaxed text-text-secondary">
-                  Deleting your account is permanent. All account-related
-                  data may be removed and this action cannot be undone.
+                  Deleting your account is permanent. All account-related data
+                  may be removed and this action cannot be undone.
                 </p>
               </div>
             </div>

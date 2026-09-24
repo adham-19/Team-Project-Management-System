@@ -71,3 +71,35 @@ export const taskFields = [
     ],
   },
 ];
+
+
+export const profileFields = [
+  {
+    name: "firstName",
+    label: "First Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your first name",
+  },
+  {
+    name: "secondName",
+    label: "Second Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your second name",
+  },
+  {
+    name: "username",
+    label: "Username",
+    type: "text",
+    required: true,
+    placeholder: "Enter your username",
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "text",
+    required: true,
+    placeholder: "Enter your email",
+  },
+];
