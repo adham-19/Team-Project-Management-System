@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   User,
   Mail,
@@ -9,32 +9,144 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import Modal from "../components/Modal";
-import ConfirmationModal from "../components/ConfirmationModal";
-import { profileFields } from "../utils/fieldsFormat";
+import { useNavigate } from "react-router-dom";
+
+import {
+  getProfile,
+  updateProfile,
+  changePassword,
+  deleteAccount,
+} from "../../services/user.service";
+
+import { useAuth } from "../../context/AuthContext";
+
+import Loading from "../../components/Loading";
+import Error from "../../components/Error";
+import Modal from "../../components/Modal";
+import ConfirmationModal from "../../components/ConfirmationModal";
+
+const profileFields = [
+  {
+    name: "firstName",
+    label: "First Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your first name",
+  },
+  {
+    name: "secondName",
+    label: "Second Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your second name",
+  },
+  {
+    name: "username",
+    label: "Username",
+    type: "text",
+    required: true,
+    placeholder: "Enter your username",
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+    required: true,
+    placeholder: "Enter your email",
+  },
+];
+
+const passwordFields = [
+  {
+    name: "currentPassword",
+    label: "Current Password",
+    type: "password",
+    required: true,
+    placeholder: "Enter your current password",
+    autoComplete: "current-password",
+  },
+  {
+    name: "newPassword",
+    label: "New Password",
+    type: "password",
+    required: true,
+    placeholder: "Enter your new password",
+    autoComplete: "new-password",
+  },
+  {
+    name: "confirmPassword",
+    label: "Confirm Password",
+    type: "password",
+    required: true,
+    placeholder: "Confirm your new password",
+    autoComplete: "new-password",
+  },
+];
 
 export default function Profile() {
-  // Temporary data until authentication/profile API is implemented
-  const [user, setUser] = useState({
-    firstName: "Ahmed",
-    secondName: "Mohamed",
-    username: "ahmed_mohamed",
-    email: "ahmed@example.com",
+  const navigate = useNavigate();
+
+  const {
+    user: authUser,
+    updateUser,
+    logout,
+  } = useAuth();
+
+  const [user, setUser] = useState(authUser);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageError, setPageError] = useState("");
+
+  const [profileFormData, setProfileFormData] = useState({
+    firstName: "",
+    secondName: "",
+    username: "",
+    email: "",
   });
 
-  const [profileFormData, setProfileFormData] = useState(user);
+  const [passwordFormData, setPasswordFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   const [isEditProfile, setIsEditProfile] = useState(false);
+  const [isChangePassword, setIsChangePassword] = useState(false);
   const [isDeleteAccount, setIsDeleteAccount] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalError, setModalError] = useState("");
 
-  const fullName = `${user.firstName} ${user.secondName}`;
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setIsLoading(true);
+      setPageError("");
+
+      try {
+        const res = await getProfile();
+
+        setUser(res.data.data);
+        updateUser(res.data.data);
+      } catch (err) {
+        setPageError(
+          err.response?.data?.message ||
+            "Failed to load profile",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const fullName = `${user?.firstName || ""} ${
+    user?.secondName || ""
+  }`;
 
   const getInitials = () => {
-    return `${user.firstName?.[0] || ""}${
-      user.secondName?.[0] || ""
+    return `${user?.firstName?.[0] || ""}${
+      user?.secondName?.[0] || ""
     }`.toUpperCase();
   };
 
@@ -66,14 +178,75 @@ export default function Profile() {
     setModalError("");
 
     try {
-      // Later:
-      // const res = await updateProfile(profileFormData);
-      // setUser(res.data.data);
+      const res = await updateProfile({
+        firstName: profileFormData.firstName.trim(),
+        secondName: profileFormData.secondName.trim(),
+        username: profileFormData.username.trim(),
+        email: profileFormData.email.trim(),
+      });
 
-      setUser(profileFormData);
+      setUser(res.data.data);
+      updateUser(res.data.data);
+
       setIsEditProfile(false);
     } catch (err) {
-      setModalError(err.response?.data?.message || "Something went wrong");
+      setModalError(
+        err.response?.data?.message ||
+          "Something went wrong",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenChangePassword = () => {
+    setPasswordFormData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
+    setModalError("");
+    setIsChangePassword(true);
+  };
+
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setPasswordFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleChangePasswordSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      passwordFormData.newPassword !==
+      passwordFormData.confirmPassword
+    ) {
+      setModalError("New passwords do not match");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setModalError("");
+
+    try {
+      await changePassword(passwordFormData);
+
+      setIsChangePassword(false);
+      setPasswordFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      setModalError(
+        err.response?.data?.message ||
+          "Something went wrong",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -89,49 +262,58 @@ export default function Profile() {
     setModalError("");
 
     try {
-      // Later:
-      // await deleteAccount();
+      await deleteAccount();
 
-      setIsDeleteAccount(false);
+      logout();
+      navigate("/login");
     } catch (err) {
-      setModalError(err.response?.data?.message || "Something went wrong");
+      setModalError(
+        err.response?.data?.message ||
+          "Something went wrong",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (pageError) {
+    return <Error message={pageError} />;
+  }
+
   return (
     <main className="min-h-[calc(100vh-64px)] bg-main-bg px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
-        {/* PAGE HEADER */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-text-main">Profile</h1>
+          <h1 className="text-2xl font-bold text-text-main">
+            Profile
+          </h1>
 
           <p className="mt-1 text-sm text-text-secondary">
             Manage your account information and preferences
           </p>
         </div>
 
-        {/* PROFILE CARD */}
         <section className="overflow-hidden rounded-2xl border border-border-light bg-surface shadow-sm">
-          {/* PROFILE HEADER */}
           <div className="border-b border-border-light px-6 py-6 sm:px-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              {/* AVATAR */}
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-white shadow-sm">
                 {getInitials()}
               </div>
 
-              {/* NAME */}
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-text-main">{fullName}</h2>
+                <h2 className="text-xl font-bold text-text-main">
+                  {fullName}
+                </h2>
 
                 <p className="mt-1 text-sm text-text-secondary">
                   @{user.username}
                 </p>
               </div>
 
-              {/* EDIT ACCOUNT */}
               <button
                 type="button"
                 onClick={handleOpenEditProfile}
@@ -143,7 +325,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* ACCOUNT INFORMATION */}
           <div className="px-6 py-6 sm:px-8">
             <div className="mb-5">
               <h3 className="text-base font-bold text-text-main">
@@ -156,7 +337,6 @@ export default function Profile() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* FIRST NAME */}
               <div className="rounded-xl border border-border-light bg-main-bg/50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <User className="h-4 w-4 text-text-secondary" />
@@ -171,7 +351,6 @@ export default function Profile() {
                 </p>
               </div>
 
-              {/* SECOND NAME */}
               <div className="rounded-xl border border-border-light bg-main-bg/50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <User className="h-4 w-4 text-text-secondary" />
@@ -186,7 +365,6 @@ export default function Profile() {
                 </p>
               </div>
 
-              {/* USERNAME */}
               <div className="rounded-xl border border-border-light bg-main-bg/50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <AtSign className="h-4 w-4 text-text-secondary" />
@@ -201,7 +379,6 @@ export default function Profile() {
                 </p>
               </div>
 
-              {/* EMAIL */}
               <div className="rounded-xl border border-border-light bg-main-bg/50 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <Mail className="h-4 w-4 text-text-secondary" />
@@ -218,7 +395,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* ACCOUNT SETTINGS */}
           <div className="border-t border-border-light px-6 py-6 sm:px-8">
             <div className="mb-4">
               <h3 className="text-base font-bold text-text-main">
@@ -231,7 +407,6 @@ export default function Profile() {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              {/* EDIT ACCOUNT */}
               <button
                 type="button"
                 onClick={handleOpenEditProfile}
@@ -241,9 +416,9 @@ export default function Profile() {
                 Edit Account
               </button>
 
-              {/* CHANGE PASSWORD */}
               <button
                 type="button"
+                onClick={handleOpenChangePassword}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-light px-4 py-2.5 text-sm font-semibold text-text-main hover:bg-main-bg transition-colors cursor-pointer"
               >
                 <LockKeyhole className="h-4 w-4" />
@@ -253,7 +428,6 @@ export default function Profile() {
           </div>
         </section>
 
-        {/* DANGER ZONE */}
         <section className="mt-6 rounded-2xl border border-red-200 bg-red-50/50 p-5 sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex gap-4">
@@ -267,8 +441,9 @@ export default function Profile() {
                 </h3>
 
                 <p className="mt-1 max-w-xl text-xs leading-relaxed text-text-secondary">
-                  Deleting your account is permanent. All account-related data
-                  may be removed and this action cannot be undone.
+                  Deleting your account is permanent. All
+                  account-related data may be removed and this
+                  action cannot be undone.
                 </p>
               </div>
             </div>
@@ -285,7 +460,6 @@ export default function Profile() {
         </section>
       </div>
 
-      {/* EDIT ACCOUNT MODAL */}
       {isEditProfile && (
         <Modal
           title="Edit Account"
@@ -301,7 +475,21 @@ export default function Profile() {
         />
       )}
 
-      {/* DELETE ACCOUNT MODAL */}
+      {isChangePassword && (
+        <Modal
+          title="Change Password"
+          description="Enter your current password and choose a new password."
+          fields={passwordFields}
+          setIsModalOpen={setIsChangePassword}
+          handleSubmit={handleChangePasswordSubmit}
+          isSubmitting={isSubmitting}
+          handleInputChange={handlePasswordInputChange}
+          formData={passwordFormData}
+          submitLabel="Change Password"
+          modalError={modalError}
+        />
+      )}
+
       {isDeleteAccount && (
         <ConfirmationModal
           title="Delete Account"

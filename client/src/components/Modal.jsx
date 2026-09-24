@@ -11,41 +11,59 @@ export default function Modal({
   modalError,
 }) {
   const renderField = (field) => {
+    const commonProps = {
+      name: field.name,
+      required: field.required,
+      value: formData[field.name] ?? "",
+      onChange: handleInputChange,
+      placeholder: field.placeholder,
+      disabled: isSubmitting,
+    };
+
     switch (field.type) {
       case "text":
         return (
           <input
             type="text"
-            name={field.name}
-            required={field.required}
-            value={formData[field.name] ?? ""}
-            onChange={handleInputChange}
-            placeholder={field.placeholder}
-            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+            {...commonProps}
+            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        );
+
+      case "email":
+        return (
+          <input
+            type="email"
+            {...commonProps}
+            autoComplete="email"
+            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        );
+
+      case "password":
+        return (
+          <input
+            type="password"
+            {...commonProps}
+            autoComplete={field.autoComplete}
+            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         );
 
       case "textarea":
         return (
           <textarea
-            name={field.name}
-            required={field.required}
+            {...commonProps}
             rows={field.rows ?? 4}
-            value={formData[field.name] ?? ""}
-            onChange={handleInputChange}
-            placeholder={field.placeholder}
-            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main placeholder:text-text-secondary px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
           />
         );
 
       case "select":
         return (
           <select
-            name={field.name}
-            required={field.required}
-            value={formData[field.name] ?? ""}
-            onChange={handleInputChange}
-            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
+            {...commonProps}
+            className="w-full rounded-xl border border-border-light bg-main-bg text-text-main px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {!field.required && <option value="">Select {field.label}</option>}
 

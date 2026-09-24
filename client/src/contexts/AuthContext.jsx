@@ -1,33 +1,33 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  // 1. نقرأ البيانات مباشرة من المتصفح كـ Initial State
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("token") || null;
+  });
 
-  const isAuthenticated = Boolean(user && token);
-
-  // RESTORE AUTHENTICATION
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
+  const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
-
-    if (storedToken && storedUser) {
+    if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-
-        setToken(storedToken);
-        setUser(parsedUser);
+        return JSON.parse(storedUser);
       } catch (error) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        return null;
       }
     }
+    return null;
+  });
 
-    setIsInitializing(false);
-  }, []);
+  const isAuthenticated = Boolean(user && token);
+
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
 
   // LOGIN
   const login = (userData, authToken) => {
@@ -53,9 +53,9 @@ export function AuthProvider({ children }) {
         user,
         token,
         isAuthenticated,
-        isInitializing,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}
